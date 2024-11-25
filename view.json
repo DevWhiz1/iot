@@ -1,0 +1,279 @@
+{
+    "msg": "Automation data retrieved successfully",
+    "status": true,
+    "automations": [
+        {
+            "_id": "66fd3b759718922b3ce48b48",
+            "triggers": [
+                {
+                    "deviceId": "66d57b61e43cd4781b66f9e9",
+                    "entity_Id": "66fd217c7f71ce560813933d",
+                    "conditionState": true,
+                    "above": null,
+                    "below": null,
+                    "deviceIp": {
+                        "_id": "66d57b61e43cd4781b66f9e9",
+                        "name": "Esp ",
+                        "ip": "test.local",
+                        "IsActive": true,
+                        "createdAt": "2024-09-02T08:46:25.691Z",
+                        "updatedAt": "2024-09-02T08:46:25.691Z",
+                        "__v": 0
+                    },
+                    "entityID": "switch_2",
+                    "domain": "switch",
+                    "state": true,
+                    "stateType": "boolean"
+                },
+                {
+                    "deviceId": "66d57b61e43cd4781b66f9e9",
+                    "entity_Id": "66fd217c7f71ce560813933d",
+                    "conditionState": true,
+                    "above": null,
+                    "below": null,
+                    "deviceIp": {
+                        "_id": "66d57b61e43cd4781b66f9e9",
+                        "name": "Esp ",
+                        "ip": "test.local",
+                        "IsActive": true,
+                        "createdAt": "2024-09-02T08:46:25.691Z",
+                        "updatedAt": "2024-09-02T08:46:25.691Z",
+                        "__v": 0
+                    },
+                    "entityID": "switch_2",
+                    "domain": "switch",
+                    "state": true,
+                    "stateType": "boolean"
+                },
+                {
+                    "deviceId": "66d57b61e43cd4781b66f9e9",
+                    "entity_Id": "66fd217c7f71ce560813933d",
+                    "conditionState": false,
+                    "above": null,
+                    "below": null,
+                    "deviceIp": {
+                        "_id": "66d57b61e43cd4781b66f9e9",
+                        "name": "Esp ",
+                        "ip": "test.local",
+                        "IsActive": true,
+                        "createdAt": "2024-09-02T08:46:25.691Z",
+                        "updatedAt": "2024-09-02T08:46:25.691Z",
+                        "__v": 0
+                    },
+                    "entityID": "switch_2",
+                    "domain": "switch",
+                    "state": true,
+                    "stateType": "boolean"
+                }
+            ],
+            "conditions": [
+                {
+                    "deviceId": "66d57b61e43cd4781b66f9e9",
+                    "entity_Id": "66fd215c7f71ce560813933b",
+                    "above": "0.312",
+                    "below": "0.432",
+                    "deviceIp": {
+                        "_id": "66d57b61e43cd4781b66f9e9",
+                        "name": "Esp ",
+                        "ip": "test.local",
+                        "IsActive": true,
+                        "createdAt": "2024-09-02T08:46:25.691Z",
+                        "updatedAt": "2024-09-02T08:46:25.691Z",
+                        "__v": 0
+                    },
+                    "entityID": "ultrasonic_sensor",
+                    "domain": "sensor",
+                    "state": "0.32l/hr",
+                    "stateType": "string"
+                }
+            ],
+            "actions": [
+                {
+                    "deviceId": "66d57b61e43cd4781b66f9e9",
+                    "entity_Id": "66fd21127f71ce5608139339",
+                    "conditionState": true,
+                    "deviceIp": {
+                        "_id": "66d57b61e43cd4781b66f9e9",
+                        "name": "Esp ",
+                        "ip": "test.local",
+                        "IsActive": true,
+                        "createdAt": "2024-09-02T08:46:25.691Z",
+                        "updatedAt": "2024-09-02T08:46:25.691Z",
+                        "__v": 0
+                    },
+                    "entityID": "switch_1",
+                    "domain": "switch",
+                    "state": false,
+                    "stateType": "boolean"
+                }
+            ]
+        },
+        {
+            "_id": "66ffd51174c85c03e10c296e",
+            "triggers": [
+                {
+                    "deviceId": "66d57b61e43cd4781b66f9e9",
+                    "entity_Id": "66fd217c7f71ce560813933d",
+                    "conditionState": true,
+                    "above": null,
+                    "below": null,
+                    "deviceIp": {
+                        "_id": "66d57b61e43cd4781b66f9e9",
+                        "name": "Esp ",
+                        "ip": "test.local",
+                        "IsActive": true,
+                        "createdAt": "2024-09-02T08:46:25.691Z",
+                        "updatedAt": "2024-09-02T08:46:25.691Z",
+                        "__v": 0
+                    },
+                    "entityID": "switch_2",
+                    "domain": "switch",
+                    "state": true,
+                    "stateType": "boolean"
+                },
+                {
+                    "deviceId": "66cc7ac6b4b3036cf5e8a94d",
+                    "entity_Id": "66fd18420584a4be15e79c2a",
+                    "above": "12",
+                    "below": "15",
+                    "deviceIp": {
+                        "_id": "66cc7ac6b4b3036cf5e8a94d",
+                        "name": "Ems_cloud",
+                        "ip": "livingroomyaml.local",
+                        "IsActive": true,
+                        "createdAt": "2024-08-26T12:53:26.730Z",
+                        "updatedAt": "2024-08-26T12:53:26.730Z",
+                        "__v": 0
+                    },
+                    "entityID": "switch_2",
+                    "domain": "switch",
+                    "state": true,
+                    "stateType": "boolean"
+                }
+            ],
+            "conditions": [],
+            "actions": [
+                {
+                    "deviceId": "66d57b61e43cd4781b66f9e9",
+                    "entity_Id": "66fd217c7f71ce560813933d",
+                    "conditionState": true,
+                    "deviceIp": {
+                        "_id": "66d57b61e43cd4781b66f9e9",
+                        "name": "Esp ",
+                        "ip": "test.local",
+                        "IsActive": true,
+                        "createdAt": "2024-09-02T08:46:25.691Z",
+                        "updatedAt": "2024-09-02T08:46:25.691Z",
+                        "__v": 0
+                    },
+                    "entityID": "switch_2",
+                    "domain": "switch",
+                    "state": true,
+                    "stateType": "boolean"
+                }
+            ]
+        },
+        {
+            "_id": "66ffd97d9debe58224bd7ccf",
+            "triggers": [
+                {
+                    "deviceId": "66d57b61e43cd4781b66f9e9",
+                    "entity_Id": "66fd217c7f71ce560813933d",
+                    "conditionState": true,
+                    "above": null,
+                    "below": null,
+                    "deviceIp": {
+                        "_id": "66d57b61e43cd4781b66f9e9",
+                        "name": "Esp ",
+                        "ip": "test.local",
+                        "IsActive": true,
+                        "createdAt": "2024-09-02T08:46:25.691Z",
+                        "updatedAt": "2024-09-02T08:46:25.691Z",
+                        "__v": 0
+                    },
+                    "entityID": "switch_2",
+                    "domain": "switch",
+                    "state": true,
+                    "stateType": "boolean"
+                },
+                {
+                    "deviceId": "66cc7ac6b4b3036cf5e8a94d",
+                    "entity_Id": "66fd18420584a4be15e79c2a",
+                    "above": "12",
+                    "below": "15",
+                    "deviceIp": {
+                        "_id": "66cc7ac6b4b3036cf5e8a94d",
+                        "name": "Ems_cloud",
+                        "ip": "livingroomyaml.local",
+                        "IsActive": true,
+                        "createdAt": "2024-08-26T12:53:26.730Z",
+                        "updatedAt": "2024-08-26T12:53:26.730Z",
+                        "__v": 0
+                    },
+                    "entityID": "switch_2",
+                    "domain": "switch",
+                    "state": true,
+                    "stateType": "boolean"
+                }
+            ],
+            "conditions": [
+                {
+                    "deviceId": "66cc7ac6b4b3036cf5e8a94d",
+                    "entity_Id": "66fd18420584a4be15e79c2a",
+                    "above": "321",
+                    "below": "124",
+                    "deviceIp": {
+                        "_id": "66cc7ac6b4b3036cf5e8a94d",
+                        "name": "Ems_cloud",
+                        "ip": "livingroomyaml.local",
+                        "IsActive": true,
+                        "createdAt": "2024-08-26T12:53:26.730Z",
+                        "updatedAt": "2024-08-26T12:53:26.730Z",
+                        "__v": 0
+                    },
+                    "entityID": "sensor_test214",
+                    "domain": "sensor",
+                    "state": "0.423m",
+                    "stateType": "string"
+                }
+            ],
+            "actions": [
+                {
+                    "deviceId": "66d57b61e43cd4781b66f9e9",
+                    "entity_Id": "66fd217c7f71ce560813933d",
+                    "conditionState": true,
+                    "deviceIp": {
+                        "_id": "66d57b61e43cd4781b66f9e9",
+                        "name": "Esp ",
+                        "ip": "test.local",
+                        "IsActive": true,
+                        "createdAt": "2024-09-02T08:46:25.691Z",
+                        "updatedAt": "2024-09-02T08:46:25.691Z",
+                        "__v": 0
+                    },
+                    "entityID": "switch_2",
+                    "domain": "switch",
+                    "state": true,
+                    "stateType": "boolean"
+                },
+                {
+                    "deviceId": "66cc7ac6b4b3036cf5e8a94d",
+                    "entity_Id": "66fd18420584a4be15e79c2a",
+                    "deviceIp": {
+                        "_id": "66cc7ac6b4b3036cf5e8a94d",
+                        "name": "Ems_cloud",
+                        "ip": "livingroomyaml.local",
+                        "IsActive": true,
+                        "createdAt": "2024-08-26T12:53:26.730Z",
+                        "updatedAt": "2024-08-26T12:53:26.730Z",
+                        "__v": 0
+                    },
+                    "entityID": "switch_2",
+                    "domain": "switch",
+                    "state": true,
+                    "stateType": "boolean"
+                }
+            ]
+        }
+    ]
+}

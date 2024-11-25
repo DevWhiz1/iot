@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+   <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        margin: 20px;
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 24px;
+        color: #2c3e50;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #2c3e50;
+        color: white;
+        font-weight: bold;
+        text-transform: capitalize;
+        border-bottom: 2px solid #ddd;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tr:hover {
+        background-color: #e0f7fa;
+    }
+
+    td {
+        border-bottom: 1px solid #ddd;
+    }
+
+    td::before {
+        font-size: 14px;
+        font-weight: 600;
+        padding-left: 5px;
+        text-transform: capitalize;
+    }
+
+    .highlight {
+        font-weight: bold;
+        color: #16a085;
+    }
+
+    @media (max-width: 600px) {
+        thead {
+            display: none;
+        }
+
+        tr {
+            display: block;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        td {
+            display: block;
+            text-align: right;
+            position: relative;
+            padding: 10px 15px;
+        }
+
+        td::before {
+            content: attr(data-label);
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            font-weight: 600;
+            padding-left: 5px;
+        }
+    }
+</style>
+
+</head>
+<body>
+    <h2>Product Life Cycle</h2>
+    <table>
+        <thead>
+            <tr>
+                <th rowspan="2">Sr#</th>
+                <th rowspan="2">Product</th>
+                <th rowspan="2">Description</th>
+                <th colspan="6">Initial Phase</th>
+                <th colspan="4">Product</th>
+                <th rowspan="2">Market demand</th>
+                <th rowspan="2">Reason</th>
+            </tr>
+            <tr>
+                <th>Components procurement</th>
+                <th>Testing</th>
+                <th>Installation</th>
+                <th>PCB design</th>
+                <th>PCB Assembly</th>
+                <th>Upgradation</th>
+                <th>Circuit price</th>
+                <th>Product body design</th>
+                <th>Product body assembly</th>
+                <th>Product actual price</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td data-label="Sr#">1</td>
+                <td data-label="Product">Smart Energy meter</td>
+                <td data-label="Description">Energy metering up to 100 A</td>
+                <td data-label="Components procurement">Completed</td>
+                <td data-label="Testing">Completed</td>
+                <td data-label="Installation">Completed</td>
+                <td data-label="PCB design">Completed</td>
+                <td data-label="PCB Assembly">Completed</td>
+                <td data-label="Upgradation">Not required yet</td>
+                <td data-label="Circuit price">4740</td>
+                <td data-label="Product body design">Analysis underway</td>
+                <td data-label="Product body assembly">In material selection phase</td>
+                <td data-label="Product actual price">Yet to be decided</td>
+                <td data-label="Market demand" class="highlight">Very high</td>
+                <td data-label="Reason">Excessive billing</td>
+            </tr>
+            <tr>
+                <td data-label="Sr#">2</td>
+                <td data-label="Product">Large IoT switch</td>
+                <td data-label="Description">4 channel switching + dimming</td>
+                <td data-label="Components procurement">Completed</td>
+                <td data-label="Testing">Completed</td>
+                <td data-label="Installation">Completed</td>
+                <td data-label="PCB design">Completed</td>
+                <td data-label="PCB Assembly">Completed</td>
+                <td data-label="Upgradation">In process</td>
+                <td data-label="Circuit price">4200</td>
+                <td data-label="Product body design">Analysis underway</td>
+                <td data-label="Product body assembly">In material selection phase</td>
+                <td data-label="Product actual price">Yet to be decided</td>
+                <td data-label="Market demand" class="highlight">High</td>
+                <td data-label="Reason">Energy efficiency</td>
+            </tr>
+            <tr>
+                <td data-label="Sr#">3</td>
+                <td data-label="Product">Small IoT switch</td>
+                <td data-label="Description">2 channel switching</td>
+                <td data-label="Components procurement">Completed</td>
+                <td data-label="Testing">Completed</td>
+                <td data-label="Installation">Yet to be decided</td>
+                <td data-label="PCB design">Completed</td>
+                <td data-label="PCB Assembly">Completed</td>
+                <td data-label="Upgradation">In process</td>
+                <td data-label="Circuit price">2290</td>
+                <td data-label="Product body design">Analysis underway</td>
+                <td data-label="Product body assembly">In material selection phase</td>
+                <td data-label="Product actual price">Yet to be decided</td>
+                <td data-label="Market demand" class="highlight">High</td>
+                <td data-label="Reason">Energy efficiency</td>
+            </tr>
+            <tr>
+                <td data-label="Sr#">4</td>
+                <td data-label="Product">Heavy load IoT switch</td>
+                <td data-label="Description">1 channel switching</td>
+                <td data-label="Components procurement">Completed</td>
+                <td data-label="Testing">Completed</td>
+                <td data-label="Installation">Yet to be decided</td>
+                <td data-label="PCB design">Completed</td>
+                <td data-label="PCB Assembly">Completed</td>
+                <td data-label="Upgradation">In process</td>
+                <td data-label="Circuit price">2540</td>
+                <td data-label="Product body design">Analysis underway</td>
+                <td data-label="Product body assembly">In material selection phase</td>
+                <td data-label="Product actual price">Yet to be decided</td>
+                <td data-label="Market demand" class="highlight">High</td>
+                <td data-label="Reason">Energy efficiency</td>
+            </tr>
+            <tr>
+                <td data-label="Sr#">5</td>
+                <td data-label="Product">Water management system</td>
+                <td data-label="Description">Metering + automation</td>
+                <td data-label="Components procurement">Completed</td>
+                <td data-label="Testing">Completed</td>
+                <td data-label="Installation">Completed</td>
+                <td data-label="PCB design">Completed</td>
+                <td data-label="PCB Assembly">Pending</td>
+                <td data-label="Upgradation">Not required yet</td>
+                <td data-label="Circuit price">3950</td>
+                <td data-label="Product body design">Analysis underway</td>
+                <td data-label="Product body assembly">In material selection phase</td>
+                <td data-label="Product actual price">Yet to be decided</td>
+                <td data-label="Market demand" class="highlight">Very high</td>
+                <td data-label="Reason">Water saving</td>
+            </tr>
+            <tr>
+                <td data-label="Sr#">6</td>
+                <td data-label="Product">Smart AC IoT device</td>
+                <td data-label="Description">AC card control + automation</td>
+                <td data-label="Components procurement">Completed</td>
+                <td data-label="Testing">Completed</td>
+                <td data-label="Installation">Completed</td>
+                <td data-label="PCB design">Completed</td>
+                <td data-label="PCB Assembly">Pending</td>
+                <td data-label="Upgradation">Not required yet</td>
+                <td data-label="Circuit price">2190</td>
+                <td data-label="Product body design">Analysis underway</td>
+                <td data-label="Product body assembly">In material selection phase</td>
+                <td data-label="Product actual price">Yet to be decided</td>
+                <td data-label="Market demand" class="highlight">Very high</td>
+                <td data-label="Reason">Energy efficiency</td>
+            </tr>
+            <tr>
+                <td data-label="Sr#">7</td>
+                <td data-label="Product">Human presence IoT device</td>
+                <td data-label="Description">Still + moving presence detection</td>
+                <td data-label="Components procurement">Completed</td>
+                <td data-label="Testing">Completed</td>
+                <td data-label="Installation">Completed</td>
+                <td data-label="PCB design">Completed</td>
+                <td data-label="PCB Assembly">Pending</td>
+                <td data-label="Upgradation">Not required yet</td>
+                <td data-label="Circuit price">3140</td>
+                <td data-label="Product body design">Analysis underway</td>
+                <td data-label="Product body assembly">In material selection phase</td>
+                <td data-label="Product actual price">Yet to be decided</td>
+                <td data-label="Market demand" class="highlight">Very high</td>
+                <td data-label="Reason">Security automation</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

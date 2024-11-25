@@ -1,0 +1,1190 @@
+import React, { useState, useEffect } from "react";
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  FormControl,
+  Select,
+  MenuItem,
+  Grid,
+  Typography,
+  InputLabel,
+  TextField,
+  Switch,
+  FormControlLabel,
+  Button,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import axios from "axios";
+
+// EntitySelect Component
+const EntitySelect = ({ entityOptions, onEntityChange }) => {
+  return (
+    <FormControl fullWidth variant="outlined">
+      <InputLabel>Select Entity</InputLabel>
+      <Select onChange={onEntityChange} label="Select Entity">
+        {entityOptions.map((entity) => {
+          return (
+            <MenuItem key={entity.entityId} value={entity.entityId}>
+              {entity.entityName}{" "}
+              {entity.stateType === "string" && "(Value Changes)"}
+            </MenuItem>
+          );
+        })}
+      </Select>
+    </FormControl>
+  );
+};
+
+// Trigger Component
+const Trigger = ({ deviceOptions, onTriggerChange }) => {
+  const [triggerId, setTriggerId] = useState("");
+  const [selectedDevice, setSelectedDevice] = useState(null);
+  const [selectedEntity, setSelectedEntity] = useState(null);
+  const [entityOptions, setEntityOptions] = useState([]);
+  const [booleanState, setBooleanState] = useState(false); // State for the switch
+  const [above, setAbove] = useState(""); // State for "Above" value
+  const [below, setBelow] = useState(""); // State for "Below" value
+
+  const handleDeviceChange = (e) => {
+    const deviceId = e.target.value;
+    const device = deviceOptions.find((d) => d._id === deviceId);
+
+    if (device) {
+      setSelectedDevice(device);
+      axios
+        .get(`http://localhost:3000/entity/get/${deviceId}`)
+        .then((response) => setEntityOptions(response.data.data))
+        .catch((error) => console.error("Error fetching entities:", error));
+    }
+  };
+
+  const handleEntityChange = (e) => {
+    const value = e.target.value;
+    const selectedEntityObj = entityOptions.find(
+      (entity) => entity.entityId === value
+    );
+
+    if (selectedEntityObj) {
+      setSelectedEntity(selectedEntityObj);
+
+      if (selectedEntityObj.stateType === "boolean") {
+        setBooleanState(false); // Reset switch state
+        setAbove(null); // Clear above and below for boolean
+        setBelow(null);
+      } else if (selectedEntityObj.stateType === "string") {
+        setAbove(""); // Reset above and below for string
+        setBelow("");
+      }
+    }
+  };
+
+  const handleSwitchChange = (event) => {
+    setBooleanState(event.target.checked);
+    // Update the conditionState when switch is toggled
+    if (selectedEntity && selectedEntity.stateType === "boolean") {
+      onTriggerChange({
+        triggerId: triggerId,
+        deviceId: selectedDevice ? selectedDevice._id : null,
+        entity_Id: selectedEntity._id,
+        conditionState: event.target.checked ? true : false,
+        above: null, // Set above and below to null for boolean
+        below: null,
+      });
+    }
+  };
+
+  const handleAboveChange = (e) => {
+    setAbove(e.target.value);
+  };
+
+  const handleBelowChange = (e) => {
+    setBelow(e.target.value);
+  };
+
+  const handleStringSubmit = () => {
+    // For string entities, we pass above and below values
+    if (selectedEntity && selectedEntity.stateType === "string") {
+      onTriggerChange({
+        triggerId: triggerId,
+        deviceId: selectedDevice ? selectedDevice._id : null,
+        entity_Id: selectedEntity._id,
+        conditionState: undefined, // No conditionState for string
+        above: above,
+        below: below,
+      });
+    }
+  };
+
+  return (
+    <Accordion>
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography>Trigger: Select a device and entity</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Trigger ID"
+              value={triggerId}
+              onChange={(e) => setTriggerId(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>Select Device</InputLabel>
+              <Select
+                value={selectedDevice ? selectedDevice._id : ""}
+                onChange={handleDeviceChange}
+                label="Select Device"
+              >
+                {deviceOptions.map((device) => (
+                  <MenuItem key={device._id} value={device._id}>
+                    {device.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* Entity Selection */}
+          <Grid item xs={12}>
+            <EntitySelect
+              entityOptions={entityOptions}
+              onEntityChange={handleEntityChange}
+            />
+          </Grid>
+
+          {/* Show switch for boolean and input fields for string */}
+          {selectedEntity && (
+            <>
+              {selectedEntity.stateType === "boolean" ? (
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={booleanState}
+                        onChange={handleSwitchChange}
+                      />
+                    }
+                    label={booleanState ? "On" : "Off"}
+                  />
+                </Grid>
+              ) : selectedEntity.stateType === "string" ? (
+                <>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Above"
+                      value={above}
+                      onChange={handleAboveChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Below"
+                      value={below}
+                      onChange={handleBelowChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <button onClick={handleStringSubmit}>Submit</button>
+                  </Grid>
+                </>
+              ) : null}
+            </>
+          )}
+        </Grid>
+      </AccordionDetails>
+    </Accordion>
+  );
+};
+
+const Condition = ({ deviceOptions, onConditionChange }) => {
+  const [triggerId, setTriggerId] = useState("");
+  const [selectedDevice, setSelectedDevice] = useState(null);
+  const [selectedEntity, setSelectedEntity] = useState(null);
+  const [entityOptions, setEntityOptions] = useState([]);
+  const [booleanState, setBooleanState] = useState(false); // State for the switch
+  const [above, setAbove] = useState(""); // State for "Above" value
+  const [below, setBelow] = useState(""); // State for "Below" value
+
+  const handleDeviceChange = (e) => {
+    const deviceId = e.target.value;
+    const device = deviceOptions.find((d) => d._id === deviceId);
+
+    if (device) {
+      setSelectedDevice(device);
+      axios
+        .get(`http://localhost:3000/entity/get/${deviceId}`)
+        .then((response) => setEntityOptions(response.data.data))
+        .catch((error) => console.error("Error fetching entities:", error));
+    }
+  };
+
+  const handleEntityChange = (e) => {
+    const value = e.target.value;
+    const selectedEntityObj = entityOptions.find(
+      (entity) => entity.entityId === value
+    );
+
+    if (selectedEntityObj) {
+      setSelectedEntity(selectedEntityObj);
+
+      if (selectedEntityObj.stateType === "boolean") {
+        setBooleanState(false); // Reset switch state
+        setAbove(null); // Clear above and below for boolean
+        setBelow(null);
+      } else if (selectedEntityObj.stateType === "string") {
+        setAbove(""); // Reset above and below for string
+        setBelow("");
+      }
+    }
+  };
+
+  const handleSwitchChange = (event) => {
+    setBooleanState(event.target.checked);
+    // Update the conditionState when switch is toggled
+    if (selectedEntity && selectedEntity.stateType === "boolean") {
+      onConditionChange({
+        deviceId: selectedDevice ? selectedDevice._id : null,
+        entity_Id: selectedEntity._id,
+        conditionState: event.target.checked ? true : false,
+        above: null, // Set above and below to null for boolean
+        below: null,
+      });
+    }
+  };
+
+  const handleAboveChange = (e) => {
+    setAbove(e.target.value);
+  };
+
+  const handleBelowChange = (e) => {
+    setBelow(e.target.value);
+  };
+
+  const handleStringSubmit = () => {
+    // For string entities, we pass above and below values
+    if (selectedEntity && selectedEntity.stateType === "string") {
+      onConditionChange({
+        deviceId: selectedDevice ? selectedDevice._id : null,
+        entity_Id: selectedEntity._id,
+        conditionState: undefined, // No conditionState for string
+        above: above,
+        below: below,
+      });
+    }
+  };
+
+  return (
+    <Accordion>
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography>Trigger: Select a device and entity</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>Select Device</InputLabel>
+              <Select
+                value={selectedDevice ? selectedDevice._id : ""}
+                onChange={handleDeviceChange}
+                label="Select Device"
+              >
+                {deviceOptions.map((device) => (
+                  <MenuItem key={device._id} value={device._id}>
+                    {device.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* Entity Selection */}
+          <Grid item xs={12}>
+            <EntitySelect
+              entityOptions={entityOptions}
+              onEntityChange={handleEntityChange}
+            />
+          </Grid>
+
+          {/* Show switch for boolean and input fields for string */}
+          {selectedEntity && (
+            <>
+              {selectedEntity.stateType === "boolean" ? (
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={booleanState}
+                        onChange={handleSwitchChange}
+                      />
+                    }
+                    label={booleanState ? "On" : "Off"}
+                  />
+                </Grid>
+              ) : selectedEntity.stateType === "string" ? (
+                <>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Above"
+                      value={above}
+                      onChange={handleAboveChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Below"
+                      value={below}
+                      onChange={handleBelowChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <button onClick={handleStringSubmit}>Submit</button>
+                  </Grid>
+                </>
+              ) : null}
+            </>
+          )}
+        </Grid>
+      </AccordionDetails>
+    </Accordion>
+  );
+};
+
+const Action = ({ deviceOptions, onActionChange }) => {
+  const [triggerId, setTriggerId] = useState("");
+  const [selectedDevice, setSelectedDevice] = useState(null);
+  const [selectedEntity, setSelectedEntity] = useState(null);
+  const [entityOptions, setEntityOptions] = useState([]);
+  const [booleanState, setBooleanState] = useState(false); // State for the switch
+  const [above, setAbove] = useState(""); // State for "Above" value
+  const [below, setBelow] = useState(""); // State for "Below" value
+
+  const handleDeviceChange = (e) => {
+    const deviceId = e.target.value;
+    const device = deviceOptions.find((d) => d._id === deviceId);
+
+    if (device) {
+      setSelectedDevice(device);
+      axios
+        .get(`http://localhost:3000/entity/get/${deviceId}`)
+        .then((response) => setEntityOptions(response.data.data))
+        .catch((error) => console.error("Error fetching entities:", error));
+    }
+  };
+
+  const handleEntityChange = (e) => {
+    const value = e.target.value;
+    const selectedEntityObj = entityOptions.find(
+      (entity) => entity.entityId === value
+    );
+
+    if (selectedEntityObj) {
+      setSelectedEntity(selectedEntityObj);
+
+      if (selectedEntityObj.stateType === "boolean") {
+        setBooleanState(false); // Reset switch state
+        setAbove(null); // Clear above and below for boolean
+        setBelow(null);
+      } else if (selectedEntityObj.stateType === "string") {
+        setAbove(""); // Reset above and below for string
+        setBelow("");
+      }
+    }
+  };
+
+  const handleSwitchChange = (event) => {
+    setBooleanState(event.target.checked);
+    // Update the conditionState when switch is toggled
+    if (selectedEntity && selectedEntity.stateType === "boolean") {
+      onActionChange({
+        deviceId: selectedDevice ? selectedDevice._id : null,
+        entity_Id: selectedEntity._id,
+        conditionState: event.target.checked ? true : false,
+        above: null, // Set above and below to null for boolean
+        below: null,
+      });
+    }
+  };
+
+  const handleAboveChange = (e) => {
+    setAbove(e.target.value);
+  };
+
+  const handleBelowChange = (e) => {
+    setBelow(e.target.value);
+  };
+
+  const handleStringSubmit = () => {
+    // For string entities, we pass above and below values
+    if (selectedEntity && selectedEntity.stateType === "string") {
+      onActionChange({
+        deviceId: selectedDevice ? selectedDevice._id : null,
+        entity_Id: selectedEntity._id,
+        conditionState: undefined, // No conditionState for string
+        above: above,
+        below: below,
+      });
+    }
+  };
+
+  return (
+    <Accordion>
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography>Trigger: Select a device and entity</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>Select Device</InputLabel>
+              <Select
+                value={selectedDevice ? selectedDevice._id : ""}
+                onChange={handleDeviceChange}
+                label="Select Device"
+              >
+                {deviceOptions.map((device) => (
+                  <MenuItem key={device._id} value={device._id}>
+                    {device.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* Entity Selection */}
+          <Grid item xs={12}>
+            <EntitySelect
+              entityOptions={entityOptions}
+              onEntityChange={handleEntityChange}
+            />
+          </Grid>
+
+          {/* Show switch for boolean and input fields for string */}
+          {selectedEntity && (
+            <>
+              {selectedEntity.stateType === "boolean" ? (
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={booleanState}
+                        onChange={handleSwitchChange}
+                      />
+                    }
+                    label={booleanState ? "On" : "Off"}
+                  />
+                </Grid>
+              ) : selectedEntity.stateType === "string" ? (
+                <>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Above"
+                      value={above}
+                      onChange={handleAboveChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Below"
+                      value={below}
+                      onChange={handleBelowChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <button onClick={handleStringSubmit}>Submit</button>
+                  </Grid>
+                </>
+              ) : null}
+            </>
+          )}
+        </Grid>
+      </AccordionDetails>
+    </Accordion>
+  );
+};
+
+// Main App Component
+const Automation = () => {
+  const [triggers, setTriggers] = useState([]);
+  const [conditions, setConditions] = useState([]);
+  const [actions, setActions] = useState([]);
+  const [deviceOptions, setDeviceOptions] = useState([]);
+
+  // State to keep track of the number of components
+  const [triggerCount, setTriggerCount] = useState(0);
+  const [conditionCount, setConditionCount] = useState(0);
+  const [actionCount, setActionCount] = useState(0);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:3000/device/getall")
+      .then((response) => {
+        setDeviceOptions(response.data.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching devices: ", error);
+      });
+  }, []);
+
+  const handleTriggerChange = (triggerData) => {
+    setTriggers((prevTriggers) => [...prevTriggers, triggerData]);
+  };
+
+  const handleConditionChange = (conditionData) => {
+    setConditions((prevConditions) => [...prevConditions, conditionData]);
+  };
+
+  const handleActionChange = (actionData) => {
+    setActions((prevActions) => [...prevActions, actionData]);
+  };
+
+  const handleSubmit = () => {
+    // Handle triggers
+    const automationData = {
+      triggers,
+      conditions,
+      actions,
+    };
+    console.log("Automation Data: ", automationData);
+    axios
+      .post("http://localhost:3000/automation/save", automationData)
+      .then((response) => {
+        console.log("Automation saved successfully:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error saving automation:", error);
+      });
+
+    triggers.forEach((trigger) => {
+      const url = `http://${trigger.ip}/${trigger.domain}/${trigger.entityId}/${
+        trigger.state ? "turn_on" : "turn_off"
+      }`;
+      axios
+        .post(url, "")
+        .then((response) => {
+          console.log("Trigger success:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error sending trigger request:", error);
+        });
+    });
+
+    // Handle conditions
+    conditions.forEach((condition) => {
+      const url = `http://${condition.ip}/${condition.domain}/${
+        condition.entityId
+      }/${condition.state ? "turn_on" : "turn_off"}`;
+      axios
+        .post(url, " ")
+        .then((response) => {
+          console.log("Condition success:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error sending condition request:", error);
+        });
+    });
+
+    // Handle actions
+    actions.forEach((action) => {
+      const url = `http://${action.ip}/${action.domain}/${action.entityId}/${
+        action.state ? "turn_on" : "turn_off"
+      }`;
+      axios
+        .post(url, "")
+        .then((response) => {
+          console.log("Action success:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error sending action request:", error);
+        });
+    });
+  };
+  return (
+    <div style={{ width: "80%", margin: "0 auto", paddingTop: "20px" }}>
+      <Typography variant="h5" gutterBottom>
+        Automation System
+      </Typography>
+
+      <Typography variant="h4">Triggers</Typography>
+      {[...Array(triggerCount)].map((_, index) => (
+        <Trigger
+          key={index}
+          deviceOptions={deviceOptions}
+          onTriggerChange={handleTriggerChange}
+        />
+      ))}
+      <Button
+        variant="contained"
+        style={{ marginBottom: "20px", marginTop: "2px" }}
+        onClick={() => setTriggerCount(triggerCount + 1)}
+      >
+        Add Trigger
+      </Button>
+
+      <Typography variant="h4">Conditions</Typography>
+      {[...Array(conditionCount)].map((_, index) => (
+        <Condition
+          key={index}
+          deviceOptions={deviceOptions}
+          onConditionChange={handleConditionChange}
+        />
+      ))}
+      <Button
+        variant="contained"
+        style={{ marginBottom: "20px", marginTop: "2px" }}
+        onClick={() => setConditionCount(conditionCount + 1)}
+      >
+        Add Condition
+      </Button>
+
+      <Typography variant="h4">Actions</Typography>
+      {[...Array(actionCount)].map((_, index) => (
+        <Action
+          key={index}
+          deviceOptions={deviceOptions}
+          onActionChange={handleActionChange}
+        />
+      ))}
+      <Button
+        variant="contained"
+        style={{ marginBottom: "20px", marginBottom: "2px" }}
+        onClick={() => setActionCount(actionCount + 1)}
+      >
+        Add Action
+      </Button>
+      <Typography variant="h4">Activate Automation</Typography>
+      <Button
+        variant="contained"
+        onClick={handleSubmit}
+        style={{ marginTop: "20px" }}
+      >
+        Save Automation
+      </Button>
+    </div>
+  );
+};
+export default Automation;
+
+// import React, { useState, useEffect } from "react";
+// import {
+//   Accordion,
+//   AccordionSummary,
+//   AccordionDetails,
+//   FormControl,
+//   Select,
+//   MenuItem,
+//   Grid,
+//   Typography,
+//   InputLabel,
+//   Button,
+//   TextField,
+// } from "@mui/material";
+// import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+// import axios from "axios";
+
+// // Trigger Component
+
+// const Trigger = ({ deviceOptions, onTriggerChange }) => {
+//   const [triggerId, setTriggerId] = useState("");
+//   const [selectedDevice, setSelectedDevice] = useState(null); // Initialize as null
+//   const [selectedEntity, setSelectedEntity] = useState(""); // Initialize as empty string
+//   const [entityOptions, setEntityOptions] = useState([]);
+
+//   // Fetch entities based on selected device
+//   const handleDeviceChange = (e) => {
+//     const deviceId = e.target.value;
+
+//     const device = deviceOptions.find((d) => d._id === deviceId); // Find the selected device
+
+//     if (device) {
+//       setSelectedDevice(device); // Store the entire device object
+
+//       axios
+//         .get(`http://localhost:3000/entity/get/${deviceId}`)
+//         .then((response) => setEntityOptions(response.data.data))
+//         .catch((error) => console.error("Error fetching entities:", error));
+//     }
+//   };
+
+//   const handleEntityChange = (e) => {
+//     const [entityId, state] = e.target.value.split("|");
+
+//     const selectedEntityObj = entityOptions.find(
+//       (entity) => entity.entityId === entityId
+//     );
+
+//     if (selectedDevice && selectedEntityObj) {
+//       onTriggerChange({
+//         triggerId: triggerId,
+//         deviceId: selectedDevice._id,
+//         entity_Id: selectedEntityObj._id,
+//         conditionState: state,
+//         // above,
+//         // below,
+//       });
+//       setSelectedEntity(e.target.value);
+//     }
+//   };
+
+//   return (
+//     <Accordion>
+//       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+//         <Typography>Trigger: Select a device and entity</Typography>
+//       </AccordionSummary>
+//       <AccordionDetails>
+//         <Grid container spacing={2}>
+//           <Grid item xs={12}>
+//             <TextField
+//               fullWidth
+//               label="Triger ID"
+//               value={triggerId}
+//               onChange={(e) => {
+//                 setTriggerId(e.target.value);
+//               }}
+//             />
+//           </Grid>
+//           <Grid item xs={12}>
+//             <FormControl fullWidth variant="outlined">
+//               <InputLabel>Select Device</InputLabel>
+//               <Select
+//                 value={selectedDevice ? selectedDevice._id : ""} // Use selectedDevice's ID
+//                 onChange={handleDeviceChange}
+//                 label="Select Device"
+//               >
+//                 {deviceOptions.map((device) => (
+//                   <MenuItem key={device._id} value={device._id}>
+//                     {device.name}
+//                   </MenuItem>
+//                 ))}
+//               </Select>
+//             </FormControl>
+//           </Grid>
+
+//           {/* Entity Selection */}
+
+//           <Grid item xs={12}>
+//             <FormControl fullWidth variant="outlined">
+//               <InputLabel>Select Entity</InputLabel>
+//               <Select
+//                 value={selectedEntity} // Ensure the value matches format entityId|state
+//                 onChange={handleEntityChange}
+//                 label="Select Entity"
+//                 disabled={!selectedDevice} // Disable if no device is selected
+//               >
+//                 {entityOptions.map((entity) => [
+//                   <MenuItem
+//                     key={`${entity.entityId}-on`}
+//                     value={`${entity.entityId}|on`}
+//                   >
+//                     {entity.entityName} (On)
+//                   </MenuItem>,
+//                   <MenuItem
+//                     key={`${entity.entityId}-off`}
+//                     value={`${entity.entityId}|off`}
+//                   >
+//                     {entity.entityName} (Off)
+//                   </MenuItem>,
+//                 ])}
+//               </Select>
+//             </FormControl>
+//           </Grid>
+//           <Grid item xs={12}>
+//             <TextField fullWidth label="Above" />
+//           </Grid>
+//           <Grid item xs={12}>
+//             <TextField fullWidth label="Below" />
+//           </Grid>
+//         </Grid>
+//       </AccordionDetails>
+//     </Accordion>
+//   );
+// };
+
+// const Condition = ({ deviceOptions, onConditionChange }) => {
+//   const [selectedDevice, setSelectedDevice] = useState(null); // Initialize as null
+//   const [selectedEntity, setSelectedEntity] = useState(""); // Initialize as empty string
+//   const [entityOptions, setEntityOptions] = useState([]);
+
+//   // Fetch entities based on selected device
+//   const handleDeviceChange = (e) => {
+//     const deviceId = e.target.value;
+
+//     const device = deviceOptions.find((d) => d._id === deviceId); // Find the selected device
+
+//     if (device) {
+//       setSelectedDevice(device); // Store the entire device object
+
+//       axios
+//         .get(`http://localhost:3000/entity/get/${deviceId}`)
+//         .then((response) => setEntityOptions(response.data.data))
+//         .catch((error) => console.error("Error fetching entities:", error));
+//     }
+//   };
+
+//   const handleEntityChange = (e) => {
+//     const [entityId, state] = e.target.value.split("|"); // Split value into entityId and state
+
+//     // Find the selected entity based on entityId
+//     const selectedEntityObj = entityOptions.find(
+//       (entity) => entity.entityId === entityId
+//     );
+
+//     // Check if selectedDevice and selectedEntityObj are available
+//     if (selectedDevice && selectedEntityObj) {
+//       onConditionChange({
+//         deviceId: selectedDevice._id,
+//         entity_Id: selectedEntityObj._id,
+//         conditionState: state,
+//         // above,
+//         // below,
+//       });
+
+//       setSelectedEntity(e.target.value);
+//     }
+//   };
+
+//   return (
+//     <Accordion>
+//       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+//         <Typography>Condition: Select a device and entity</Typography>
+//       </AccordionSummary>
+//       <AccordionDetails>
+//         <Grid container spacing={2}>
+//           {/* Device Selection */}
+//           <Grid item xs={12}>
+//             <FormControl fullWidth variant="outlined">
+//               <InputLabel>Select Device</InputLabel>
+//               <Select
+//                 value={selectedDevice ? selectedDevice._id : ""} // Use selectedDevice's ID
+//                 onChange={handleDeviceChange}
+//                 label="Select Device"
+//               >
+//                 {deviceOptions.map((device) => (
+//                   <MenuItem key={device._id} value={device._id}>
+//                     {device.name}
+//                   </MenuItem>
+//                 ))}
+//               </Select>
+//             </FormControl>
+//           </Grid>
+
+//           {/* Entity Selection */}
+
+//           <Grid item xs={12}>
+//             <FormControl fullWidth variant="outlined">
+//               <InputLabel>Select Entity</InputLabel>
+//               <Select
+//                 value={selectedEntity} // Ensure the value matches format entityId|state
+//                 onChange={handleEntityChange}
+//                 label="Select Entity"
+//                 disabled={!selectedDevice}
+//               >
+//                 {entityOptions.map((entity) => [
+//                   <MenuItem
+//                     key={`${entity.entityId}-on`}
+//                     value={`${entity.entityId}|on`}
+//                   >
+//                     {entity.entityName} (On)
+//                   </MenuItem>,
+//                   <MenuItem
+//                     key={`${entity.entityId}-off`}
+//                     value={`${entity.entityId}|off`}
+//                   >
+//                     {entity.entityName} (Off)
+//                   </MenuItem>,
+//                 ])}
+//               </Select>
+//             </FormControl>
+//           </Grid>
+//           <Grid item xs={12}>
+//             <TextField fullWidth label="Above" />
+//           </Grid>
+//           <Grid item xs={12}>
+//             <TextField fullWidth label="Below" />
+//           </Grid>
+//         </Grid>
+//       </AccordionDetails>
+//     </Accordion>
+//   );
+// };
+
+// //Action Component
+// const Action = ({ deviceOptions, onActionChange }) => {
+//   const [selectedDevice, setSelectedDevice] = useState(null); // Initialize as null
+//   const [selectedEntity, setSelectedEntity] = useState(""); // Initialize as empty string
+//   const [entityOptions, setEntityOptions] = useState([]);
+
+//   // Fetch entities based on selected device
+//   const handleDeviceChange = (e) => {
+//     const deviceId = e.target.value;
+
+//     const device = deviceOptions.find((d) => d._id === deviceId); // Find the selected device
+
+//     if (device) {
+//       setSelectedDevice(device); // Store the entire device object
+
+//       axios
+//         .get(`http://localhost:3000/entity/get/${deviceId}`)
+//         .then((response) => setEntityOptions(response.data.data))
+//         .catch((error) => console.error("Error fetching entities:", error));
+//     }
+//   };
+
+//   const handleEntityChange = (e) => {
+//     const [entityId, state] = e.target.value.split("|"); // Split value into entityId and state
+
+//     // Find the selected entity based on entityId
+//     const selectedEntityObj = entityOptions.find(
+//       (entity) => entity.entityId === entityId
+//     );
+
+//     // Check if selectedDevice and selectedEntityObj are available
+//     if (selectedDevice && selectedEntityObj) {
+//       onActionChange({
+//         deviceId: selectedDevice._id,
+//         entity_Id: selectedEntityObj._id,
+//         conditionState: state,
+//         // above,
+//         // below,
+//       });
+
+//       setSelectedEntity(e.target.value);
+//     }
+//   };
+
+//   return (
+//     <Accordion>
+//       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+//         <Typography>Condition: Select a device and entity</Typography>
+//       </AccordionSummary>
+//       <AccordionDetails>
+//         <Grid container spacing={2}>
+//           {/* Device Selection */}
+//           <Grid item xs={12}>
+//             <FormControl fullWidth variant="outlined">
+//               <InputLabel>Select Device</InputLabel>
+//               <Select
+//                 value={selectedDevice ? selectedDevice._id : ""} // Use selectedDevice's ID
+//                 onChange={handleDeviceChange}
+//                 label="Select Device"
+//               >
+//                 {deviceOptions.map((device) => (
+//                   <MenuItem key={device._id} value={device._id}>
+//                     {device.name}
+//                   </MenuItem>
+//                 ))}
+//               </Select>
+//             </FormControl>
+//           </Grid>
+
+//           {/* Entity Selection */}
+
+//           <Grid item xs={12}>
+//             <FormControl fullWidth variant="outlined">
+//               <InputLabel>Select Entity</InputLabel>
+//               <Select
+//                 value={selectedEntity} // Ensure the value matches format entityId|state
+//                 onChange={handleEntityChange}
+//                 label="Select Entity"
+//                 disabled={!selectedDevice} // Disable if no device is selected
+//               >
+//                 {entityOptions.map((entity) => [
+//                   <MenuItem
+//                     key={`${entity.entityId}-on`}
+//                     value={`${entity.entityId}|on`}
+//                   >
+//                     {entity.entityName} (On)
+//                   </MenuItem>,
+//                   <MenuItem
+//                     key={`${entity.entityId}-off`}
+//                     value={`${entity.entityId}|off`}
+//                   >
+//                     {entity.entityName} (Off)
+//                   </MenuItem>,
+//                 ])}
+//               </Select>
+//             </FormControl>
+//           </Grid>
+//           <Grid item xs={12}>
+//             <TextField fullWidth label="Above" />
+//           </Grid>
+//           <Grid item xs={12}>
+//             <TextField fullWidth label="Below" />
+//           </Grid>
+//         </Grid>
+//       </AccordionDetails>
+//     </Accordion>
+//   );
+// };
+
+// // Main App Component
+// const Automation = () => {
+//   const [triggers, setTriggers] = useState([]);
+//   const [conditions, setConditions] = useState([]);
+//   const [actions, setActions] = useState([]);
+//   const [deviceOptions, setDeviceOptions] = useState([]);
+
+//   // State to keep track of the number of components
+//   const [triggerCount, setTriggerCount] = useState(0);
+//   const [conditionCount, setConditionCount] = useState(0);
+//   const [actionCount, setActionCount] = useState(0);
+
+//   useEffect(() => {
+//     axios
+//       .get("http://localhost:3000/device/getall")
+//       .then((response) => {
+//         setDeviceOptions(response.data.data);
+//       })
+//       .catch((error) => {
+//         console.error("Error fetching devices: ", error);
+//       });
+//   }, []);
+
+//   const handleTriggerChange = (triggerData) => {
+//     setTriggers((prevTriggers) => [...prevTriggers, triggerData]);
+//   };
+
+//   const handleConditionChange = (conditionData) => {
+//     setConditions((prevConditions) => [...prevConditions, conditionData]);
+//   };
+
+//   const handleActionChange = (actionData) => {
+//     setActions((prevActions) => [...prevActions, actionData]);
+//   };
+
+//   const handleSubmit = () => {
+//     // Handle triggers
+//     const automationData = {
+//       triggers,
+//       conditions,
+//       actions,
+//     };
+//     console.log("Automation Data: ", automationData);
+//     axios
+//       .post("http://localhost:3000/automation/save", automationData)
+//       .then((response) => {
+//         console.log("Automation saved successfully:", response.data);
+//       })
+//       .catch((error) => {
+//         console.error("Error saving automation:", error);
+//       });
+
+//     triggers.forEach((trigger) => {
+//       const url = `http://${trigger.ip}/${trigger.domain}/${trigger.entityId}/${
+//         trigger.state ? "turn_on" : "turn_off"
+//       }`;
+//       axios
+//         .post(url, "")
+//         .then((response) => {
+//           console.log("Trigger success:", response.data);
+//         })
+//         .catch((error) => {
+//           console.error("Error sending trigger request:", error);
+//         });
+//     });
+
+//     // Handle conditions
+//     conditions.forEach((condition) => {
+//       const url = `http://${condition.ip}/${condition.domain}/${
+//         condition.entityId
+//       }/${condition.state ? "turn_on" : "turn_off"}`;
+//       axios
+//         .post(url, " ")
+//         .then((response) => {
+//           console.log("Condition success:", response.data);
+//         })
+//         .catch((error) => {
+//           console.error("Error sending condition request:", error);
+//         });
+//     });
+
+//     // Handle actions
+//     actions.forEach((action) => {
+//       const url = `http://${action.ip}/${action.domain}/${action.entityId}/${
+//         action.state ? "turn_on" : "turn_off"
+//       }`;
+//       axios
+//         .post(url, "")
+//         .then((response) => {
+//           console.log("Action success:", response.data);
+//         })
+//         .catch((error) => {
+//           console.error("Error sending action request:", error);
+//         });
+//     });
+//   };
+//   return (
+//     <div style={{ width: "80%", margin: "0 auto", paddingTop: "20px" }}>
+//       <Typography variant="h5" gutterBottom>
+//         Automation System
+//       </Typography>
+
+//       <Typography variant="h4">Triggers</Typography>
+//       {[...Array(triggerCount)].map((_, index) => (
+//         <Trigger
+//           key={index}
+//           deviceOptions={deviceOptions}
+//           onTriggerChange={handleTriggerChange}
+//         />
+//       ))}
+//       <Button
+//         variant="contained"
+//         style={{ marginBottom: "20px", marginTop: "2px" }}
+//         onClick={() => setTriggerCount(triggerCount + 1)}
+//       >
+//         Add Trigger
+//       </Button>
+
+//       <Typography variant="h4">Conditions</Typography>
+//       {[...Array(conditionCount)].map((_, index) => (
+//         <Condition
+//           key={index}
+//           deviceOptions={deviceOptions}
+//           onConditionChange={handleConditionChange}
+//         />
+//       ))}
+//       <Button
+//         variant="contained"
+//         style={{ marginBottom: "20px", marginTop: "2px" }}
+//         onClick={() => setConditionCount(conditionCount + 1)}
+//       >
+//         Add Condition
+//       </Button>
+
+//       <Typography variant="h4">Actions</Typography>
+//       {[...Array(actionCount)].map((_, index) => (
+//         <Action
+//           key={index}
+//           deviceOptions={deviceOptions}
+//           onActionChange={handleActionChange}
+//         />
+//       ))}
+//       <Button
+//         variant="contained"
+//         style={{ marginBottom: "20px", marginBottom: "2px" }}
+//         onClick={() => setActionCount(actionCount + 1)}
+//       >
+//         Add Action
+//       </Button>
+//       <Typography variant="h4">Activate Automation</Typography>
+//       <Button
+//         variant="contained"
+//         onClick={handleSubmit}
+//         style={{ marginTop: "20px" }}
+//       >
+//         Save Automation
+//       </Button>
+//     </div>
+//   );
+// };
+
+// export default Automation;

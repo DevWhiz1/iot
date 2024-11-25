@@ -1,0 +1,52 @@
+esphome:
+  name: my_device
+  platform: ESP32
+  board: esp32dev
+
+wifi:
+  ssid: "your_SSID"
+  password: "your_PASSWORD"
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+# Enable Over-The-Air updates
+ota:
+
+# Web Server Configuration
+web_server:
+  port: 80
+
+# WebSocket Server Configuration
+web_socket:
+  port: 81
+  on_message:
+    - then:
+        - lambda: |-
+            ESP_LOGI("web_socket", "Received message: %s", x.c_str());
+        - delay: 100ms
+        - lambda: |-
+            ESP_LOGI("web_socket", "Sending response: %s", "Hello, client!");
+
+# Example of HTTP Request
+http_request:
+  id: my_request
+  url: "https://api.example.com/data"
+  method: GET
+  headers:
+    Content-Type: "application/json"
+  timeout: 10s
+
+interval:
+  - interval: 60s
+    then:
+      - http_request.get: my_request
+      - lambda: |-
+          if (id(my_request).status_code == 200) {
+            ESP_LOGI("http_request", "Success: %s", id(my_request).get_response_body().c_str());
+          } else {
+            ESP_LOGE("http_request", "Error %d: %s", id(my_request).status_code, id(my_request).get_response_body().c_str());
+          }
