@@ -2,16 +2,13 @@ const Entity=require('../models/entity.model');
 
 const AddEntity = async (req, res, next) => {
     try {
-      const { device, entityName, entityId, mqttTopic, state, stateType, isActive } = req.body;
-  
-  
-  
-      // Create new entity with parsed state
+      const { device, entityName, entityId, subscribeTopic,publishTopic, state, stateType, isActive } = req.body;
       const newEntity = new Entity({
         device,
         entityName,
         entityId,
-        mqttTopic,
+        subscribeTopic,
+        publishTopic,
         state,
         stateType,          
         isActive,
@@ -34,7 +31,9 @@ const AddEntity = async (req, res, next) => {
     }
   };
   
-  
+// update state of entity via Mqtt server connection
+
+
 const getAllEntities=async(req,res,next)=>{
     try{
     const entities=await Entity.find({})

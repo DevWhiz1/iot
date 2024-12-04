@@ -20,6 +20,7 @@ import EntitySwitch from "./components/switchLayout/EntitySwitch";
 import FloorPlan from "./components/device/FloorPlan";
 import Automation from "./components/automation/AutomationLayout";
 import CodeEditor from "./components/codeeditor/CodeEditor";
+import WebSocketComponent from "./components/dashbord/MainLayout";
 
 
 function App() {
@@ -47,12 +48,14 @@ function App() {
               <Route path="/codeeditor" element={<CodeEditor />} />
               <Route path="/bar" element={<Bar />} />
               <Route path="/pie" element={<Pie />} />
-              <Route path="/line" element={<Line />} />
+              {/* <Route path="/line" element={<Line />} /> */}
+              <Route path="/line" element={<WebSocketComponent />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/calendar" element={<Calendar />} />
               {/* <Route path="/geography" element={<Geography />} /> */}
               <Route path="/geography" element={<Automation/>} />
               {/* <Route path="/faq" element={<AutomationComponent />} /> */}
+
             </Routes>
                         
           </main>

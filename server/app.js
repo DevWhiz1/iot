@@ -1,37 +1,28 @@
 require('dotenv').config();
-require('express-async-errors');
-
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser'); 
+const bodyParser = require('body-parser');
 const connectDB = require('./db/connect');
+const mqttClient = require('./mqtt/mqttClient');
+const { Server } = require('socket.io');
+const http = require('http');
+const Entity = require('./models/entity.model'); // Entity model for DB interaction
+
 const app = express();
 
-// Import routes
-const entityRoutes = require('./routes/entity.route');
-const userRoutes=require("./routes/user")
-const deviceRoutes=require("./routes/devices.route");
-const automationRoutes=require("./routes/automation.route");
-// Middleware setup
+// Middleware
 app.use(cors());
-app.use(bodyParser.json()); 
-app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+const entityRoutes = require('./routes/entity.route');
+const userRoutes = require('./routes/user');
+const deviceRoutes = require('./routes/devices.route');
+const automationRoutes = require('./routes/automation.route');
 
-// Use routes
-app.use("/user", userRoutes);
-app.use("/device", deviceRoutes);
+app.use('/user', userRoutes);
+app.use('/device', deviceRoutes);
 app.use('/entity', entityRoutes);
-app.use('/automation',automationRoutes);
-
-// Error handling middleware
-app.use((req, res, next) => {
-    res.status(404).json({ message: 'Not Found' });
-});
-
-app.use((err, req, res, next) => {
-    console.error('Error:', err);
-    res.status(500).json({ message: 'Internal Server Error' });
-});
+app.use('/automation', automationRoutes);
 
 // Start server
 const port = process.env.PORT || 3000;
@@ -41,9 +32,145 @@ const start = async () => {
     try {
         await connectDB(dbConnectionString);
         console.log('Connected to database');
-        app.listen(port, () => {
+
+        const server = http.createServer(app);
+        const io = new Server(server, {
+            cors: {
+                origin: "*", // Allow all origins
+            },
+        });
+
+        server.listen(port, () => {
             console.log(`Server is listening on port ${port}`);
         });
+
+        // Fetch all active entities from the database and subscribe to their MQTT topics
+        const entities = await Entity.find({ isActive: true });
+        entities.forEach((entity) => {
+            mqttClient.subscribe(entity.subscribeTopic, (err) => {
+                if (err) {
+                    console.error(`Failed to subscribe to ${entity.subscribeTopic}:`, err);
+                } else {
+                    console.log(`Subscribed to topic: ${entity.subscribeTopic}`);
+                }
+            });
+        });
+
+        io.on('connection', async (socket) => {
+            console.log('New client connected');
+        
+            try {
+                // Fetch all entities grouped by devices
+                const entities = await Entity.find({ isActive: true }).populate('device', 'name');
+
+        
+                // Group entities by their associated device
+                // const entities = await Entity.find({ isActive: true });
+
+
+                const groupedEntities = entities.reduce((groups, entity) => {
+                    if (!entity.device) {
+                        console.warn(`Entity with ID ${entity._id} does not have an associated device`);
+                        return groups;
+                    }
+                
+                    const deviceId = entity.device.toString();
+                
+                    if (!groups[deviceId]) {
+                        groups[deviceId] = {
+                            deviceId: entity.device._id,
+                            deviceName: entity.device.name,
+                            // isActive: entity.device.isActive,
+                            entities: [],
+                        };
+                    }
+                    groups[deviceId].entities.push({
+                        _id: entity._id,
+                        entityName: entity.entityName,
+                        entityId: entity.entityId,
+                        subscribeTopic: entity.subscribeTopic,
+                        publishTopic: entity.publishTopic,
+                        stateType: entity.stateType,
+                        state: entity.state,
+                        history: entity.history,
+                    });
+                    return groups;
+                }, {});
+                
+        
+                // Send grouped entities to the client
+                socket.emit('initial_state', { devices: Object.values(groupedEntities) });
+        
+                console.log('Sent grouped entities to the client',groupedEntities);
+            } catch (error) {
+                console.error('Error fetching initial state:', error);
+            }
+        
+            // Handle state change requests
+            socket.on('state_change', async ({ publishTopic, state }) => {
+                try {
+                    console.log(`Received state change request for topic: ${publishTopic}, state: ${state}`);
+        
+                    const entity = await Entity.findOne({ publishTopic });
+                    if (entity) {
+                        // Publish new state to MQTT topic
+                        mqttClient.publish(publishTopic, state, (err) => {
+                            if (err) {
+                                console.error('Failed to publish MQTT message:', err);
+                            } else {
+                                console.log(`Published new state to topic ${publishTopic}: ${state}`);
+                            }
+                        });
+        
+                        // Update the entity state in the database
+                        // entity.state = state;
+                        // entity.updatedAt = new Date();
+                        // await entity.save();
+        
+                        // Broadcast updated state to all clients
+                        // io.emit('state_update', {
+                        //     deviceId: entity.device,
+                        //     entityId: entity._id,
+                        //     state,
+                        // });
+                    }
+                } catch (error) {
+                    console.error('Error handling state change:', error);
+                }
+            });
+        
+            socket.on('disconnect', () => {
+                console.log('Client disconnected');
+            });
+        });
+        
+        
+
+        // Listen for MQTT messages and update React clients
+        mqttClient.on('message', async (topic, message) => {
+            try {
+                const entity = await Entity.findOne({ subscribeTopic: topic });
+                if (entity) {
+                    // Update the entity's state in the database
+                    entity.state = message.toString();
+                    entity.updatedAt = new Date();
+                    entity.history.push({ value: message.toString(), time: new Date() });
+                    await entity.save();
+        
+                    // Broadcast the updated state to all WebSocket clients
+                    io.emit('state_update', {
+                        deviceId: entity.device,
+                        entityId: entity._id,
+                        state: message.toString(),
+                    });
+        
+                    console.log(`Updated state for entity ${entity.entityName} (${entity._id}): ${message}`);
+                }
+            } catch (error) {
+                console.error('Error handling MQTT message:', error);
+            }
+        });
+        
     } catch (error) {
         console.error('Failed to start server:', error);
     }

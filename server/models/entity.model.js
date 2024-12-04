@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const EntitySchema = new mongoose.Schema({
     device: {
         type: Schema.Types.ObjectId,
-        ref: "Device",  // Ensure this matches your actual Device model
+        ref: "Device", 
     },
     entityName: {
         type: String,
@@ -14,9 +14,13 @@ const EntitySchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    mqttTopic: {
+    subscribeTopic: {
         type: String,
         required: true,
+    },
+    publishTopic: {
+        type: String,
+        required: true
     },
     stateType: {
         type: String,
@@ -24,7 +28,7 @@ const EntitySchema = new mongoose.Schema({
         required: true
     },
     state: {
-        type: Schema.Types.Mixed, // If state is more than just a simple value
+        type: Schema.Types.Mixed, 
         required: true
     },
     history: [{
@@ -33,7 +37,7 @@ const EntitySchema = new mongoose.Schema({
             default: Date.now
         },
         value: {
-            type: Schema.Types.Mixed, // Flexible, but can be defined more specifically if needed
+            type: Schema.Types.Mixed, 
         }
     }, { id: false }],
     isActive: {  

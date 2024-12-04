@@ -1,4 +1,4 @@
-import { Box, Button, TextField, FormControlLabel, Checkbox, Switch, MenuItem, Select, InputLabel, FormHelperText, Snackbar, FormControl } from "@mui/material";
+import { Box, Button, TextField, FormControlLabel, MenuItem, Select, InputLabel, FormHelperText, Snackbar, FormControl, Switch } from "@mui/material";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -12,7 +12,6 @@ const EntityForm = () => {
   const [deviceOptions, setDeviceOptions] = useState([]);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [stateType, setStateType] = useState('boolean'); // Track state type (boolean or string)
 
   useEffect(() => {
     const loadDeviceOptions = async () => {
@@ -29,11 +28,9 @@ const EntityForm = () => {
 
   const handleFormSubmit = async (values, { resetForm }) => {
     try {
-      // Ensure stateType is sent along with the state value
       const payload = { 
-        ...values, 
-        state: stateType === 'boolean' ? values.state : String(values.state),
-        stateType // Include stateType in the request
+        ...values,
+        state: String(values.state), // Ensure state is stored as a string
       };
       const response = await axios.post("http://localhost:3000/entity/add", payload);
       console.log("Response:", response.data);
@@ -44,7 +41,7 @@ const EntityForm = () => {
       setErrorMessage("Error submitting form. Please try again.");
     }
   };
-  
+
   return (
     <Box m="20px">
       <Header title="CREATE DEVICE" subtitle="Create a New Device Profile" />
@@ -117,20 +114,20 @@ const EntityForm = () => {
               <TextField
                 fullWidth
                 variant="outlined"
-                label="Subscribe Topic"
-                name="subscribe"
+                label="MQTT Subscribe Topic"
+                name="subscribeTopic"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.subscribe}
-                error={!!touched.subscribe && !!errors.subscribe}
-                helperText={touched.subscribe && errors.subscribe}
+                value={values.subscribeTopic}
+                error={!!touched.subscribeTopic && !!errors.subscribeTopic}
+                helperText={touched.subscribeTopic && errors.subscribeTopic}
                 sx={{ gridColumn: "span 2" }}
               />
 
-<TextField
+              <TextField
                 fullWidth
                 variant="outlined"
-                label="Publish Topic"
+                label="MQTT Publish Topic"
                 name="publishTopic"
                 onBlur={handleBlur}
                 onChange={handleChange}
@@ -139,31 +136,42 @@ const EntityForm = () => {
                 helperText={touched.publishTopic && errors.publishTopic}
                 sx={{ gridColumn: "span 2" }}
               />
+
               <FormControl fullWidth sx={{ gridColumn: "span 2" }}>
                 <InputLabel id="state-type-label">State Type</InputLabel>
                 <Select
                   labelId="state-type-label"
                   id="state-type"
                   label="State Type"
-                  value={stateType}
-                  onChange={(e) => setStateType(e.target.value)}
+                  value={values.stateType || "switch"} // Default to 'switch' (lowercase)
+                  onChange={(e) => {
+                    const selectedType = e.target.value;
+                    setFieldValue("stateType", selectedType);
+                    
+                    // Reset state value when switching between 'switch' and 'sensor'
+                    if (selectedType === "sensor") {
+                      setFieldValue("state", ""); // Set empty string for sensor
+                    } else {
+                      setFieldValue("state", "OFF"); // Default value for switch
+                    }
+                  }}
                 >
-                  <MenuItem value="boolean">Switch</MenuItem>
-                  <MenuItem value="string">Sensor</MenuItem>
+                  <MenuItem value="switch">Switch</MenuItem>
+                  <MenuItem value="sensor">Sensor</MenuItem>
                 </Select>
                 <FormHelperText>
                   <ErrorMessage name="stateType" />
                 </FormHelperText>
               </FormControl>
 
-              {stateType === 'boolean' ? (
+              {/* Conditionally display state input */}
+              {values.stateType === "switch" ? (
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={values.state}
-                      onChange={(e) => setFieldValue("state", e.target.checked)}
+                      checked={values.state === "ON"} // State is stored as a string, e.g., "ON" or "OFF"
+                      onChange={(e) => setFieldValue("state", e.target.checked ? "ON" : "OFF")}
                       name="state"
-                      color="secondary"
                     />
                   }
                   label="State"
@@ -186,7 +194,7 @@ const EntityForm = () => {
 
               <FormControlLabel
                 control={
-                  <Checkbox
+                  <Switch
                     checked={values.isActive}
                     onChange={(e) => setFieldValue("isActive", e.target.checked)}
                     name="isActive"
@@ -231,7 +239,6 @@ const checkoutSchema = yup.object().shape({
   device: yup.string().required("Required"),
   entityName: yup.string().required("Entity name is Required"),
   entityId: yup.string().required("Required"),
-  domain: yup.string().required("Required"),
   isActive: yup.boolean(),
 });
 
@@ -239,12 +246,21 @@ const initialValues = {
   device: "",
   entityName: "",
   entityId: "",
-  domain: "",
-  state: false,
+  subscribeTopic: "",
+  publishTopic: "",
+  state: "", // Default state as empty string (for sensor)
+  stateType: "switch", // Default to 'switch' (lowercase)
   isActive: false,
 };
 
 export default EntityForm;
+
+
+
+
+
+
+
 
 
 
