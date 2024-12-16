@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
-import { Grid, Box, Card, CardHeader, CardContent, Typography, Switch, Tooltip, IconButton } from '@mui/material';
-import { MoreVert} from '@mui/icons-material';
+import {
+  Grid,
+  Box,
+  Card,
+  CardHeader,
+  CardContent,
+  Typography,
+  Switch,
+  Tooltip,
+  IconButton,
+} from '@mui/material';
+import { MoreVert } from '@mui/icons-material';
 import OnlinePredictionIcon from '@mui/icons-material/OnlinePrediction';
+
 const IOTDashboard = () => {
   const [socket, setSocket] = useState(null);
   const [devices, setDevices] = useState([]);
@@ -49,53 +60,76 @@ const IOTDashboard = () => {
 
   return (
     <Box sx={{ flexGrow: 1, p: 3 }}>
-      <Grid container spacing={3}>
+      {/* Use CSS flex wrapping for responsive blocks */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 3, // Adds spacing between the cards
+          justifyContent: 'space-between', // Ensures equal spacing
+        }}
+      >
         {devices.map((device) => (
-          <Grid item xs={12} sm={6} md={4} key={device._id}>
-            <Card>
-              <CardHeader
-                action={
-                  <Tooltip title="More Options">
-                    <IconButton>
-                      <MoreVert />
-                    </IconButton>
-                  </Tooltip>
-                }
-                title={device.deviceName}
-              />
-              <CardContent>
-                {device.entities.map((entity) => (
-                  <Box key={entity._id} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <OnlinePredictionIcon sx={{ mr: 2 }} />
-                    <Typography variant="body1">{entity.entityName}</Typography>
-                    {/* <Typography variant="body1" sx={{ ml: 'auto' }}>
-                      {entity.state}
-                    </Typography> */}
+          <Card
+            key={device._id}
+            sx={{
+              flex: '1 1 calc(25% - 16px)', // Takes up 25% width minus spacing
+              minWidth: '300px', // Ensures a minimum card width
+              maxWidth: '100%',
+              boxSizing: 'border-box',
+            }}
+          >
+            <CardHeader
+              action={
+                <Tooltip title="More Options">
+                  <IconButton>
+                    <MoreVert />
+                  </IconButton>
+                </Tooltip>
+              }
+              title={device.deviceName}
+            />
+            <CardContent>
+              {device.entities.map((entity) => (
+                <Box
+                  key={entity._id}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    mb: 2,
+                  }}
+                >
+                  <OnlinePredictionIcon sx={{ mr: 2 }} />
+                  <Typography variant="body1">{entity.entityName}</Typography>
 
-                    {/* Check for switch type and render accordingly */}
-                    {entity.stateType === 'switch' ? (
-                      <Switch
+                  {entity.stateType === 'switch' ? (
+                    <Switch
                       sx={{ ml: 'auto' }}
-                        checked={entity.state === 'ON'}
-                        onChange={() =>
-                          handleEntityUpdate(entity.publishTopic, entity.state === 'ON' ? 'OFF' : 'ON')
-                        }
-                      />
-                    ) : null}
-
-                    {/* Display the state for sensor-type entities */}
-                    {entity.stateType !== 'switch' && (
-                      <Typography variant="body1" sx={{ ml: 'auto', variant:"h1",fontSize:"18px" }}>
-                        {entity.state}
-                      </Typography>
-                    )}
-                  </Box>
-                ))}
-              </CardContent>
-            </Card>
-          </Grid>
+                      checked={entity.state === 'ON'}
+                      onChange={() =>
+                        handleEntityUpdate(
+                          entity.publishTopic,
+                          entity.state === 'ON' ? 'OFF' : 'ON'
+                        )
+                      }
+                    />
+                  ) : (
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        ml: 'auto',
+                        fontSize: '18px',
+                      }}
+                    >
+                      {entity.state}
+                    </Typography>
+                  )}
+                </Box>
+              ))}
+            </CardContent>
+          </Card>
         ))}
-      </Grid>
+      </Box>
     </Box>
   );
 };

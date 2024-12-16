@@ -1,0 +1,118 @@
+esphome:
+  name: nodemcu
+  friendly_name: nodemcu
+
+esp8266:
+  board: nodemcuv2
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "0wOyWJNAyRlnTOREql91/9FRYrrlTzg0iIN+meyVVDw="
+
+ota:
+  - platform: esphome
+    password: "5664b3597d91da3edeb36f47996ca9fd"
+
+wifi:
+  ssid: Qatar-Emporium
+  password: DigitalSpyre@14321NADA
+
+  # Optional manual IP
+  manual_ip:
+    static_ip: 192.168.100.157
+    gateway: 192.168.100.1
+    subnet: 255.255.255.0
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Nodemcu Fallback Hotspot"
+    password: "gh0S1f6ZWIKV"
+
+captive_portal:
+  
+switch:
+  - platform: gpio
+    pin: D6
+    name: "switch 1"
+    id: switch_1
+
+  - platform: gpio
+    pin: D4
+    name: "switch 2"
+    id: switch_2
+
+  - platform: gpio
+    pin: D3
+    name: "switch 3"
+    id: switch_3
+
+  - platform: gpio
+    pin: TX
+    name: "switch 4"
+    id: switch_4
+
+binary_sensor: 
+  
+  - platform: gpio 
+    pin:
+      number: D2
+      mode:
+        input: true
+        pullup: true
+    name: "Button 1" 
+    on_press:
+      - logger.log: "Button Pressed"
+      - switch.turn_on: switch_1
+    on_release:
+      - logger.log: "Button Released"
+      - switch.turn_off: switch_1
+  
+  - platform: gpio 
+    pin:
+      number: D5
+      mode:
+        input: true
+        pullup: true
+    name: "Button 3" 
+    on_press:
+      - logger.log: "Button Pressed"
+      - switch.turn_on: switch_3
+    on_release:
+      - logger.log: "Button Released"
+      - switch.turn_off: switch_3
+
+
+  - platform: gpio 
+    pin:
+      number: D1
+      mode:
+        input: true
+        pullup: true
+    name: "Button 4" 
+    on_press:
+      - logger.log: "Button Pressed"
+      - switch.turn_on: switch_4
+    on_release:
+      - logger.log: "Button Released"
+      - switch.turn_off: switch_4
+
+output:
+  - platform: ac_dimmer
+    id: dimmer1
+    gate_pin: RX
+    zero_cross_pin:
+      number: D8
+      mode:
+        input: true
+      inverted: yes
+
+light:
+  - platform: monochromatic
+    output: dimmer1
+    name: fan dimmer
+
+web_server:
+  port: 80

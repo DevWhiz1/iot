@@ -1,0 +1,114 @@
+esphome:
+  name: it_room_smart_switch_1
+  friendly_name: smart switch 1
+
+esp8266:
+  board: esp01_1m
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "AmfzkWg6WO1Rsmuvk/0pKSTsCuWjWL3PC9v+ZSY2U30="
+
+ota:
+  - platform: esphome
+    key: "pakistan123"
+
+wifi:
+  ssid: Qatar-Emporium
+  password: DigitalSpyre@14321NADA
+  
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Test Fallback Hotspot"
+    password: "mr2PthyuxdU5"
+
+captive_portal:
+
+# Switches for GPIO pins
+switch:
+  - platform: gpio
+    pin: 0
+    name: "Switch 1"
+    id: switch_1
+    inverted: true
+    on_turn_on:
+      - mqtt.publish:
+          topic: "home/smart_switch_1/switch_1/state"
+          payload: "ON"
+    on_turn_off:
+      - mqtt.publish:
+          topic: "home/smart_switch_1/switch_1/state"
+          payload: "OFF"
+      
+  - platform: gpio
+    pin: 2
+    name: "Switch 2"
+    id: switch_2
+    inverted: true
+    on_turn_on:
+      - mqtt.publish:
+          topic: "home/smart_switch_1/switch_2/state"
+          payload: "ON"
+    on_turn_off:
+      - mqtt.publish:
+          topic: "home/smart_switch_1/switch_2/state"
+          payload: "OFF"
+    
+binary_sensor: 
+  - platform: gpio 
+    pin:
+      number: 3
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    name: "Button 1" 
+    on_press:
+      - logger.log: "Button Pressed"
+      - switch.turn_on: switch_1
+      - mqtt.publish:
+          topic: "home/smart_switch_1/button_1/state"
+          payload: "PRESSED"
+    on_release:
+      - logger.log: "Button Released"
+      - switch.turn_off: switch_1
+      - mqtt.publish:
+          topic: "home/smart_switch_1/button_1/state"
+          payload: "RELEASED"
+
+  - platform: gpio 
+    pin:
+      number: 1
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    name: "Button 2" 
+    on_press:
+      - logger.log: "Button Pressed"
+      - switch.turn_on: switch_2
+      - mqtt.publish:
+          topic: "home/smart_switch_1/button_2/state"
+          payload: "PRESSED"
+    on_release:
+      - logger.log: "Button Released"
+      - switch.turn_off: switch_2
+      - mqtt.publish:
+          topic: "home/smart_switch_1/button_2/state"
+          payload: "RELEASED"
+
+web_server:
+  port: 80
+
+# MQTT configuration
+mqtt: 
+  broker: "192.168.100.14"  # Replace with your broker IP or hostname
+  port: 1883               # Default MQTT port
+  username: ""
+  password: ""
+  id: ground
+  topic_prefix: "home"

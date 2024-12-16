@@ -39,7 +39,7 @@ web_server:
 
   const [yamlCode, setYamlCode] = useState(defaultYaml);
   const [fileName, setFileName] = useState('');
-  const [openModal, setOpenModal] = useState(false); // State to control modal visibility
+  const [openModal, setOpenModal] = useState(false); 
 
   // Handle File Upload
   const handleFileOpen = (e) => {
@@ -59,7 +59,7 @@ web_server:
     element.download = `${fileName || 'code'}.yaml`;
     document.body.appendChild(element);
     element.click();
-    setOpenModal(false); // Close modal after download
+    setOpenModal(false);
   };
 
   return (
@@ -98,17 +98,17 @@ web_server:
         <DialogContent>
           <TextField
             label="File Name"
-            variant="filled"
+            variant="standard"
             value={fileName}
             onChange={(e) => setFileName(e.target.value)}
             fullWidth
           />
         </DialogContent>
         <DialogActions>
-          <Button variant='outlined' onClick={() => setOpenModal(false)} color="primary">
+          <Button variant='contained' onClick={() => setOpenModal(false)} color="primary">
             Cancel
           </Button>
-          <Button variant='outlined' onClick={handleDownload} color="primary">
+          <Button variant='contained' onClick={handleDownload} color="primary">
             Download
           </Button>
         </DialogActions>
